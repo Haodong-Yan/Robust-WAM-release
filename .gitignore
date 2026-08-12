@@ -1,0 +1,17 @@
+# checkpoints & data (host separately, e.g. Hugging Face)
+checkpoints/
+*.pt
+*.pth
+*.safetensors
+datasets/
+logs/
+runs/
+eval_results/
+# python
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+
+# FastWAM backbone — released separately (coming soon)
+/fastwam-RW/
