@@ -21,14 +21,14 @@ This repository provides faithful, runnable implementations on two action-expert
 | Folder | Backbone | Benchmark(s) | Train | Inference |
 |---|---|---|---|---|
 | [`geact-RW/`](./geact-RW) | GE-Act (LTX-Video) | LIBERO / LIBERO-Plus, Real robot | ✅ | ✅ |
-| `fastwam-RW/` *(coming soon)* | [FastWAM](https://huggingface.co/yuanty/fastwam) (Wan2.2 VAE) | LIBERO / LIBERO-Plus, RoboTwin, Real robot | 🚧 | 🚧 |
+| [`fastwam-RW/`](./fastwam-RW) | [FastWAM](https://huggingface.co/yuanty/fastwam) (Wan2.2 VAE) | LIBERO / LIBERO-Plus, RoboTwin, Real robot | ✅ | ✅ |
 
 ---
 
 ## 📢 News
 
 - **[2026-08]** Paper on [arXiv](https://arxiv.org/abs/2608.05903).
-- **[2026-08]** GE-Act backbone code released. FastWAM backbone coming soon.
+- **[2026-08]** GE-Act and FastWAM backbone code released, together with the post-trained GE-Act checkpoint.
 
 ## 🌟 Key Features
 
@@ -54,17 +54,28 @@ For each future step and camera view, a learnable query token is prepended to th
 
 ## 🚀 Get Started
 
+Fastest path: evaluate our released GE-Act checkpoint on LIBERO-Plus.
+
+```bash
+cd geact-RW
+bash scripts/setup_env.sh                 # conda env + deps + LIBERO / LIBERO-Plus sources
+conda activate robustwam-geact
+python scripts/download_assets.py         # Robust-WAM checkpoint + LTX-Video, writes scripts/env.sh
+source scripts/env.sh
+bash scripts/eval_libero_plus.sh          # all perturbation axes (add NUM_SHARDS/SHARD/DEVICE to shard)
+```
+
 Each backbone folder is self-contained with its own environment, data, training, and evaluation instructions:
 
 - **GE-Act** → [`geact-RW/README.md`](./geact-RW/README.md)
-- **FastWAM** → *(coming soon)*
+- **FastWAM** → [`fastwam-RW/README.md`](./fastwam-RW/README.md)
 
 The core of the method is small and lives in a few files per backbone:
 
 | Backbone | Query tokens + shared PE | Alignment loss | Inference (queries kept) |
 |---|---|---|---|
 | GE-Act | `models/action_patches/patches.py` (`align_prefix_emb`, `prepend_align_prefix`, `prefix_stride`) | `align_proj` in `patches.py`; cosine loss in `runner/ge_trainer.py` | `models/ltx_models/transformer_ltx_multiview.py` (`align_enabled` gate, prefix kept) |
-| FastWAM | *coming soon* | *coming soon* | *coming soon* |
+| FastWAM | `src/fastwam/fastwam.py` (`pre_dit`, query tokens + shared RoPE) | `model.future_align` in the task config | `fastwam.py` `_predict_action_noise_with_cache` (K = 16 queries kept) |
 
 ## 📊 Results
 
@@ -81,14 +92,15 @@ The core of the method is small and lives in a few files per backbone:
 
 ## 🔥 TODO
 
-- [ ] Release pretrained + Robust-WAM checkpoints on Hugging Face.
+- [x] Release the Robust-WAM GE-Act checkpoint on [Hugging Face](https://huggingface.co/Haodong082399/Robust-WAM-GE-Act).
+- [ ] Release the Robust-WAM FastWAM and LingBot-VA checkpoints.
 - [ ] LingBot-VA (unified WAM) backbone folder for RoboTwin.
 - [ ] Real-robot deployment guide.
 
 ## ❤️ Acknowledgement
 
 This project builds directly on the released code of the backbone WAMs it post-trains:
-[FastWAM](https://huggingface.co/yuanty/fastwam), GE-Act, and [LingBot-VA](https://huggingface.co/robbyant/lingbot-va-base). The semantic teacher is [DINOv3](https://github.com/facebookresearch/dinov3), and the video backbones build on [Wan2.2](https://github.com/Wan-Video/Wan2.2) and LTX-Video. Evaluation uses [LIBERO](https://github.com/Lifelong-Robot-Learning/LIBERO), [LIBERO-Plus](https://github.com/fanwenke/LIBERO-plus), and [RoboTwin](https://github.com/RoboTwin-Platform/RoboTwin). We thank the authors of these projects.
+[FastWAM](https://huggingface.co/yuanty/fastwam), GE-Act, and [LingBot-VA](https://huggingface.co/robbyant/lingbot-va-base). The semantic teacher is [DINOv3](https://github.com/facebookresearch/dinov3), and the video backbones build on [Wan2.2](https://github.com/Wan-Video/Wan2.2) and LTX-Video. Evaluation uses [LIBERO](https://github.com/Lifelong-Robot-Learning/LIBERO), [LIBERO-Plus](https://github.com/sylvestf/LIBERO-plus), and [RoboTwin](https://github.com/RoboTwin-Platform/RoboTwin). We thank the authors of these projects.
 
 ## 🖊 Citation
 
